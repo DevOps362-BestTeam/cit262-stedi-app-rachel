@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stedi-rachellofgran-dev
+spec: 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stedi-rachellofgran-dev
+  template:
+    metadata:
+      labels:
+        app: stedi-rachellofgran-dev
+    spec:
+      containers:
+        - name: stedi-rachellofgran-dev
+          image: gcr.io/bestteam362/rachel-stedi-api
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secrets-prod
+                  key: REDIS_PASSWORD
+            - name: REDIS_HOST
+              value: "redis-stedi-prod"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_DB
+              value: "0"
+            - name: KAFKA_BROKER
+              value: "localhost:9092"
+          ports:
+            - containerPort: 443
+          resources:
+            limits:
+              cpu: ".5"
+              memory: "500Mi"
+            requests:
+              cpu: ".25"
+              memory: "250Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 4567
+            initialDelaySeconds: 3
+            periodSeconds: 3
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: stedi-rachellofgran-dev-service
+# spec:
+#   selector:
+#     app: stedi-rachellofgran-dev-service
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 4567
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: setdi-rachellofgran-dev-nodeport
+# spec:
